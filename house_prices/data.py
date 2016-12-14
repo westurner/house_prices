@@ -4,9 +4,14 @@
 | License: BSD 3-Clause https://github.com/scikit-learn/scikit-learn/blob/master/COPYING
 """
 
+import csv
+import numpy as np
+from os.path import join, dirname
+from sklean.datasets import Bunch
 
-def load_boston(return_X_y=False):
-    """Load and return the boston house-prices dataset (regression).
+
+def load_house_prices(return_X_y=False, data_file='train.csv'):
+    """Load and return the house_prices house-prices dataset (regression).
     ==============     ==============
     Samples total                 506
     Dimensionality                 13
@@ -29,18 +34,18 @@ def load_boston(return_X_y=False):
         .. versionadded:: 0.18
     Examples
     --------
-    >>> from sklearn.datasets import load_boston
-    >>> boston = load_boston()
-    >>> print(boston.data.shape)
+    >>> from sklearn.datasets import load_house_prices
+    >>> house_prices = load_house_prices()
+    >>> print(house_prices.data.shape)
     (506, 13)
     """
     module_path = dirname(__file__)
 
-    fdescr_name = join(module_path, 'descr', 'boston_house_prices.rst')
+    fdescr_name = join(module_path, 'data', 'data_description.txt')
     with open(fdescr_name) as f:
         descr_text = f.read()
 
-    data_file_name = join(module_path, 'data', 'boston_house_prices.csv')
+    data_file_name = join(module_path, 'data', data_file)
     with open(data_file_name) as f:
         data_file = csv.reader(f)
         temp = next(data_file)
