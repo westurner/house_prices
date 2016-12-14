@@ -1,0 +1,18 @@
+name: houseprices
+channels: !!python/tuple
+  - defaults
+dependencies:
+  - click
+  - pytest
+  - numpy
+  - scipy
+  - scikit-learn
+  - pandas
+  - requests
+  - pip:
+    - datacleaner
+    - deap
+    - update_checker
+    - tqdm
+    - xgboost
+    - tpot

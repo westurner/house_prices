@@ -85,4 +85,8 @@ dist: clean ## builds source and wheel package
 	ls -l dist
 
 install: clean ## install the package to the active Python's site-packages
+	$(MAKE) condaenvupdate
 	python setup.py install
+
+condaenvupdate: ## install the necessary conda and pip packages (and pytest)
+	conda env update -f environment.yml
