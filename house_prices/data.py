@@ -4,14 +4,52 @@
 | License: BSD 3-Clause https://github.com/scikit-learn/scikit-learn/blob/master/COPYING
 """
 
-import csv
-import numpy as np
+import re
+
+from collections import OrderedDict as odict
 from os.path import join, dirname
-from sklean.datasets import Bunch
+
+import datacleaner
+import pandas as pd
+from sklearn.datasets.base import Bunch
 
 
-def load_house_prices(return_X_y=False, data_file='train.csv'):
+def parse_description(filename='data_description.txt'):
+    module_path = dirname(__file__)
+
+    fdescr_name = join(module_path, 'data', 'data_description.txt')
+
+    rgx_var = re.compile('^(?P<feature>\w+): (?P<description>.*)')
+    rgx_cat = re.compile('^\s+(?P<name>\w+)\t(?P<label>.*)')
+
+    data_dict = odict()
+    cur_category = None
+    with open(fdescr_name) as f:
+        for line in f:
+            mobj = rgx_var.match(line)
+            if mobj:
+                feature_mdict = mobj.groupdict()
+                if cur_category is not None:
+                    data_dict[feature_mdict['feature']] = cur_category
+                cur_category = []
+            else:
+                mobj = rgx_cat.match(line)
+                if mobj:
+                    mdict = mobj.groups()
+                    cur_category.append(mdict)
+        if cur_category is not None:
+            data_dict[feature_mdict['feature']] = cur_category
+    return data_dict
+
+
+def load_house_prices(return_X_y=False, data_file='train.csv',
+                      do_autoclean=True,
+                      do_get_dummies=True,
+
+                      write_clean_data=True):
     """Load and return the house_prices house-prices dataset (regression).
+
+    TODO:
     ==============     ==============
     Samples total                 506
     Dimensionality                 13
@@ -41,25 +79,39 @@ def load_house_prices(return_X_y=False, data_file='train.csv'):
     """
     module_path = dirname(__file__)
 
-    fdescr_name = join(module_path, 'data', 'data_description.txt')
+    description_filepath = 'data_description.txt'
+    fdescr_name = join(module_path, 'data', description_filepath)
     with open(fdescr_name) as f:
         descr_text = f.read()
 
+    column_categories = parse_description(description_filepath)
+
     data_file_name = join(module_path, 'data', data_file)
-    with open(data_file_name) as f:
-        data_file = csv.reader(f)
-        temp = next(data_file)
-        n_samples = int(temp[0])
-        n_features = int(temp[1])
-        data = np.empty((n_samples, n_features))
-        target = np.empty((n_samples,))
-        temp = next(data_file)  # names of features
-        feature_names = np.array(temp)
+    df = pd.read_csv(data_file_name)
+    feature_names = df.columns.tolist()
+    target = df['SalePrice'].as_matrix()
+    del df['SalePrice']
 
-        for i, d in enumerate(data_file):
-            data[i] = np.asarray(d[:-1], dtype=np.float64)
-            target[i] = np.asarray(d[-1], dtype=np.float64)
+    # TODO: categoricals from data_description.txt ?
+    # TODO: categoricals -> binary columns? and/or autoclean
+    if do_get_dummies:
+        def get_categorical_columns(column_categories):
+            for colkey in column_categories:
+                values = column_categories[colkey]
+                if len(values):
+                    yield colkey
+        categorical_columns = list(get_categorical_columns(column_categories))
+        get_dummies_dict = {key: key for key in categorical_columns}
+        df = pd.get_dummies(df, prefix=get_dummies_dict, columns=get_dummies_dict)
 
+    if do_autoclean:
+        df = datacleaner.autoclean(df, ignore_update_check=True)
+
+    if write_clean_data:
+        clean_data_filename = data_file_name + '.cleaned.csv' if write_clean_data is True else write_clean_data
+        df.to_csv(clean_data_filename)
+
+    data = df.as_matrix()
     if return_X_y:
         return data, target
 
