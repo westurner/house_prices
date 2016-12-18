@@ -50,7 +50,7 @@ class HousePricesAnalysis(object):
         print(('score', data['score']))
 
         export_dirpath = kwargs.pop('export_dirpath',
-                                join(dirname(__file__), 'pipeline'))
+                                join(dirname(__file__), 'pipelines'))
         export_filename = kwargs.pop('export_filename', 'tpot_house_prices_.py')
         export_filepath = kwargs.pop('export_filepath',
                                     join(export_dirpath, export_filename))
