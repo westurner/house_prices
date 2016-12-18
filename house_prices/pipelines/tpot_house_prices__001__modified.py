@@ -77,6 +77,8 @@ class PredictionPipeline(object):
         if len(invalid_predict_df):
             print(invalid_predict_df)
             raise Exception()
+        if len(self.data["test_df_cleaned"]) != len(predict_df):
+            raise Exception()
 
     def predict_with_test(self):
         classcolname = self.cfg['classcolname']
