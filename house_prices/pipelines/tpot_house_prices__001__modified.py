@@ -72,16 +72,19 @@ class PredictionPipeline(object):
         self.data['train_class'] = train_class
 
     def output_heuristics(self, predict_df):
-        invalid_predict_df = predict_df[predict_df[0] <= 0]
+        classcolname = self.cfg['classcolname']
+        invalid_predict_df = predict_df[predict_df[classcolname] <= 0]
         if len(invalid_predict_df):
             print(invalid_predict_df)
             raise Exception()
 
     def predict_with_test(self):
+        classcolname = self.cfg['classcolname']
         test_df_cleaned = self.data['test_df_cleaned']
         results = self.exported_pipeline.predict(test_df_cleaned.as_matrix())
-        predict_df = pd.DataFrame(results)
-        predict_df.to_csv('../data/submission.csv')
+        predict_df = pd.DataFrame(results, columns=[classcolname])
+        predict_df.to_csv('../data/submission.csv',
+                          index_label="Id")
 
         self.output_heuristics(predict_df)
 
