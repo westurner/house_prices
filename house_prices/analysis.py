@@ -66,11 +66,12 @@ class HousePricesAnalysis(object):
         return data
 
     def to_str(self, indent=2):
-        return json.dumps(self.data, indent=indent))
+        return json.dumps(self.data, indent=indent)
 
 
 def main():
-    data = do_analysis()
+    analysis = HousePricesAnalysis()
+    data = analysis()
     print(data)
     return 0
 
