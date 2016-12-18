@@ -1,0 +1,10 @@
+{
+  "export_filepath": "./pipelines/tpot_house_prices_.py",
+  "dataloader": "HousePricesAnalysis.dataloader",
+  "train_size": 0.75,
+  "test_size": 0.25,
+  "generations": 5,
+  "population_size": 20,
+  "verbosity": 2,
+  "score": 908931349.2317022
+}
