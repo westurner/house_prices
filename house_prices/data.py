@@ -47,21 +47,20 @@ def load_house_prices(return_X_y=False, data_file='train.csv',
                       do_get_dummies=False,
 
                       write_clean_data=True):
-    """Load and return the house_prices house-prices dataset (regression).
+    """Load and return the Kaggle Ames Iowa House Prices dataset.
 
-    TODO:
-    ==============     ==============
-    Samples total                 506
-    Dimensionality                 13
-    Features           real, positive
-    Targets             real 5. - 50.
-    ==============     ==============
+    ==============     =======================
+    Samples total                         1460
+    Dimensionality                          81
+    Features           real, positive, strings
+    Targets                real 34900 - 755000
+    ==============     =======================
     Parameters
     ----------
     return_X_y : boolean, default=False.
         If True, returns ``(data, target)`` instead of a Bunch object.
         See below for more information about the `data` and `target` object.
-        .. versionadded:: 0.18
+
     Returns
     -------
     data : Bunch
@@ -69,13 +68,13 @@ def load_house_prices(return_X_y=False, data_file='train.csv',
         'data', the data to learn, 'target', the regression targets,
         and 'DESCR', the full description of the dataset.
     (data, target) : tuple if ``return_X_y`` is True
-        .. versionadded:: 0.18
+
     Examples
     --------
-    >>> from sklearn.datasets import load_house_prices
+    >>> from house_prices.data import load_house_prices
     >>> house_prices = load_house_prices()
     >>> print(house_prices.data.shape)
-    (506, 13)
+    (1460, 81)
     """
     module_path = dirname(__file__)
 
@@ -92,8 +91,6 @@ def load_house_prices(return_X_y=False, data_file='train.csv',
     target = df['SalePrice'].as_matrix()
     del df['SalePrice']
 
-    # TODO: categoricals from data_description.txt ?
-    # TODO: categoricals -> binary columns? and/or autoclean
     if do_get_dummies:
         def get_categorical_columns(column_categories):
             for colkey in column_categories:
@@ -108,7 +105,9 @@ def load_house_prices(return_X_y=False, data_file='train.csv',
         df = datacleaner.autoclean(df, ignore_update_check=True)
 
     if write_clean_data:
-        clean_data_filename = data_file_name + '.cleaned.csv' if write_clean_data is True else write_clean_data
+        clean_data_filename = (
+            data_file_name + '.cleaned.csv' if write_clean_data is True
+            else write_clean_data)
         df.to_csv(clean_data_filename)
 
     data = df.as_matrix()
