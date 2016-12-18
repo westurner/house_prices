@@ -44,7 +44,7 @@ def parse_description(filename='data_description.txt'):
 
 def load_house_prices(return_X_y=False, data_file='train.csv',
                       do_autoclean=True,
-                      do_get_dummies=True,
+                      do_get_dummies=False,
 
                       write_clean_data=True):
     """Load and return the house_prices house-prices dataset (regression).
