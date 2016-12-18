@@ -85,8 +85,10 @@ class PredictionPipeline(object):
         test_df_cleaned = self.data['test_df_cleaned']
         results = self.exported_pipeline.predict(test_df_cleaned.as_matrix())
         predict_df = pd.DataFrame(results, columns=[classcolname])
+        predict_df['Id'] = self.data['test_df_cleaned']['Id']  # TODO: drop the Id column
         predict_df.to_csv('../data/submission.csv',
-                          index_label="Id")
+                          columns=['Id', classcolname],
+                          index=False)
 
         self.output_heuristics(predict_df)
 
