@@ -10,28 +10,17 @@ Tests for `house_prices` module.
 
 import pytest
 
-from contextlib import contextmanager
 from click.testing import CliRunner
 
 from house_prices import house_prices
 from house_prices import cli
 
-
-@pytest.fixture
-def response():
-    """Sample pytest fixture.
-    See more at: http://doc.pytest.org/en/latest/fixture.html
-    """
-    # import requests
-    # return requests.get('https://github.com/audreyr/cookiecutter-pypackage')
+house_prices
 
 
-def test_content(response):
-    """Sample pytest test function with the pytest fixture as an argument.
-    """
-    # from bs4 import BeautifulSoup
-    # assert 'GitHub' in BeautifulSoup(response.content).title.string
+@pytest.mark.skip(reason="currently calls long-running analysis:main")
 def test_command_line_interface():
+
     runner = CliRunner()
     result = runner.invoke(cli.main)
     assert result.exit_code == 0
@@ -41,20 +30,85 @@ def test_command_line_interface():
     assert '--help  Show this message and exit.' in help_result.output
 
 
-def test_parse_description():
-    from house_prices.data import parse_description
-    data = parse_description()
-    print(data)
-    for k,v in data.items():
-        print(k)
-        if isinstance(v, list):
-            for value in v:
-                print(value)
-    raise Exception()
+# def test_parse_description():
+#     from house_prices.data import parse_description
+#     data = parse_description()
+#     print(data)
+#     for k,v in data.items():
+#         print(k)
+#         if isinstance(v, list):
+#             for value in v:
+#                 print(value)
+#     raise Exception()
 
 
 def test_load_house_prices():
+    import numpy as np
+    from sklearn.datasets.base import Bunch
     from house_prices.data import load_house_prices
-    data = load_house_prices()
-    print(data)
-    raise Exception()
+    train = load_house_prices()
+    assert isinstance(train, Bunch)
+    assert isinstance(train.data, np.ndarray)
+    assert isinstance(train.target, np.ndarray)
+    assert isinstance(train.feature_names, list)
+
+
+def test_load_house_prices_test_data__bunch():
+    import numpy as np
+    from sklearn.datasets.base import Bunch
+    from house_prices.data import load_house_prices
+    train, test = load_house_prices(
+        test_data_file='test.csv',
+        do_get_dummies=False)
+    assert isinstance(train, Bunch)
+    assert isinstance(train.data, np.ndarray)
+    assert isinstance(train.target, np.ndarray)
+    assert isinstance(train.feature_names, list)
+    assert isinstance(test, Bunch)
+    assert isinstance(test.data, np.ndarray)
+    #assert isinstance(test.target, None)  # kaggle-specific
+    assert isinstance(test.feature_names, list)
+    assert train.data.shape == (1460, 79)
+    assert test.data.shape == (1459, 79)
+
+
+def test_load_house_prices_test_data__dataframes():
+    from pandas import DataFrame
+    from house_prices.data import load_house_prices
+    train, test = load_house_prices(
+        test_data_file='test.csv',
+        return_dataframes=True)
+    assert isinstance(train, DataFrame)
+    assert isinstance(test, DataFrame)
+
+
+def test_load_house_prices_class():
+    from collections import OrderedDict as odict
+    from sklearn.datasets.base import Bunch
+    from house_prices.data import SuperBunch, HousePricesSuperBunch
+    cfg = odict((
+        ('do_categoricals', True),
+        ('do_get_dummies', True),
+        ('do_autoclean', 'drop'),
+        ('predict_colname', 'SalePrice')))
+
+    data = HousePricesSuperBunch.load(cfg=cfg)
+    assert isinstance(data, HousePricesSuperBunch)
+    assert isinstance(data, SuperBunch)
+    assert hasattr(data, 'cfg')
+    assert hasattr(data.cfg, 'items')
+    assert data.cfg == cfg
+    assert data.cfg['do_get_dummies'] is True
+    assert data.cfg['do_autoclean'] is 'drop'
+
+    train_bunch = data.get_train_bunch()
+    assert train_bunch.data.shape == (1460, 345)
+    assert hasattr(data, 'train_features')
+    assert hasattr(data, 'train_schema')
+    assert isinstance(train_bunch, Bunch)
+
+    test_bunch = data.get_test_bunch()
+    assert test_bunch.data.shape == (1459, 345)
+    assert isinstance(test_bunch, Bunch)
+    assert hasattr(data, 'test_features')
+    assert hasattr(data, 'test_schema')

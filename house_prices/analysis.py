@@ -18,6 +18,7 @@ from sklearn.model_selection import train_test_split
 
 log = logging.getLogger(__file__)
 
+
 class TPOTAnalysis(object):
     """
     A base class for tpot analyses.
@@ -128,15 +129,16 @@ class TPOTAnalysis(object):
         return self.to_json_str()
 
 
-from functools import wraps
-import data as _data
+import house_prices.data as _data
+
 
 class HousePricesAnalysis(TPOTAnalysis):
     FILENAME_PREFIX = 'tpot_house_prices'
 
     @staticmethod
     def dataloader():
-        return _data.load_house_prices()
+        # return _data.load_house_prices()
+        return _data.HousePricesSuperBunch.load().get_train_bunch()
 
 
 def main():
