@@ -2,7 +2,8 @@
 
 import click
 
-from analysis import HousePricesAnalysis
+from house_prices.analysis import HousePricesAnalysis
+
 
 @click.command()
 def main(args=None):
