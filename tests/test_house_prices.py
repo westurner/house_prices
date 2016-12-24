@@ -11,11 +11,7 @@ Tests for `house_prices` module.
 import pytest
 
 from click.testing import CliRunner
-
-from house_prices import house_prices
 from house_prices import cli
-
-house_prices
 
 
 @pytest.mark.skip(reason="currently calls long-running analysis:main")
