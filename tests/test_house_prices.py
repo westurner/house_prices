@@ -79,6 +79,7 @@ def test_load_house_prices_test_data__dataframes():
 
 
 def test_load_house_prices_class():
+    import numpy as np
     from collections import OrderedDict as odict
     from sklearn.datasets.base import Bunch
     from house_prices.data import SuperBunch, HousePricesSuperBunch
@@ -98,13 +99,14 @@ def test_load_house_prices_class():
     assert data.cfg['do_autoclean'] is 'drop'
 
     train_bunch = data.get_train_bunch()
-    assert train_bunch.data.shape == (1460, 345)
+    assert train_bunch.data.shape == (1460, 344)
+    assert isinstance(train_bunch.target, np.ndarray)
     assert hasattr(data, 'train_features')
     assert hasattr(data, 'train_schema')
     assert isinstance(train_bunch, Bunch)
 
     test_bunch = data.get_test_bunch()
-    assert test_bunch.data.shape == (1459, 345)
+    assert test_bunch.data.shape == (1459, 344)
     assert isinstance(test_bunch, Bunch)
     assert hasattr(data, 'test_features')
     assert hasattr(data, 'test_schema')

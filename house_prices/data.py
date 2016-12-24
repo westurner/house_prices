@@ -92,17 +92,38 @@ class SuperBunch(object):
     def test_features(self):
         self.test_df.columns.tolist()
 
-    def get_train_bunch(self):
+    def get_bunch(self, df, description=None, predict_colname=None,
+                  target=None,
+                  sparse=False):
+        if predict_colname is None:
+            predict_colname = self.cfg['predict_colname']
+        columns = [x for x in df.columns if x != predict_colname]
+        if not sparse:
+            data = df[columns].as_matrix()
+            if target is None:
+                target = df[predict_colname].as_matrix()
+        else:
+            data = df[columns].to_sparse()
+            if target is None:
+                target = df[predict_colname].to_sparse()
         return Bunch(
-            data=self.train_df.as_matrix(),
-            features=self.train_features,
-            DESCR=self.train_schema.description)
+            data=data,
+            target=target,
+            feature_names=columns,
+            DESCR=description)
 
-    def get_test_bunch(self):
-        return Bunch(
-            data=self.test_df.as_matrix(),
-            features=self.test_features,
-            DESCR=self.test_schema.description)
+    def get_train_bunch(self, predict_colname=None, **kwargs):
+        return self.get_bunch(self.train_df,
+                              description=self.train_schema.description,
+                              predict_colname=predict_colname,
+                              **kwargs)
+
+    def get_test_bunch(self, predict_colname=None, **kwargs):
+        return self.get_bunch(self.test_df,
+                              description=self.test_schema.description,
+                              target=kwargs.get('target', np.array([])),
+                              predict_colname=predict_colname,
+                              **kwargs)
 
 
 class HousePricesSuperBunch(SuperBunch):
