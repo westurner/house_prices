@@ -87,7 +87,9 @@ def test_load_house_prices_class():
         ('do_categoricals', True),
         ('do_get_dummies', True),
         ('do_autoclean', 'drop'),
-        ('predict_colname', 'SalePrice')))
+        ('predict_colname', 'SalePrice'),
+        ('index_colname', 'Id'),
+    ))
 
     data = HousePricesSuperBunch.load(cfg=cfg)
     assert isinstance(data, HousePricesSuperBunch)

@@ -97,7 +97,8 @@ class SuperBunch(object):
                   sparse=False):
         if predict_colname is None:
             predict_colname = self.cfg['predict_colname']
-        columns = [x for x in df.columns if x != predict_colname]
+        skip_columns = [predict_colname, self.cfg['index_colname']]
+        columns = [x for x in df.columns if x not in skip_columns]
         if not sparse:
             data = df[columns].as_matrix()
             if target is None:
@@ -134,6 +135,7 @@ class HousePricesSuperBunch(SuperBunch):
         ('do_get_dummies', False),
         ('do_autoclean', 'drop'),
         ('predict_colname', 'SalePrice'),
+        ('index_colname', 'Id'),
     ))
 
     @classmethod
@@ -145,7 +147,7 @@ class HousePricesSuperBunch(SuperBunch):
             test_csv=join(cls.data_path, 'test.csv'),
             train_csv=join(cls.data_path, 'train.csv'),
             description_txt=join(cls.data_path, 'data_description.txt'),
-            index_col='Id',
+            index_col=cfg['index_colname'],
             cfg=_cfg
         )
         sb.fit_transform()
